@@ -65,7 +65,6 @@ function playGame () {
                GAME_BOARD.innerHTML = ''
                return
           }
-          console.log({ GAME_PAUSED })
           updateBoard()
           drawBoard()
           playGame()
