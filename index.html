@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <meta charset="UTF-8">
+     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Snake-a-thon</title>
+     <link rel="icon" href="https://cdn.dribbble.com/users/1284944/screenshots/2881767/snakeio-icons.png" type="image/x-icon">
+     <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+     <div id="game-board"></div>
+     <div id="options-screen">
+          <p id="game-title">Snake-a-thon</p>
+          <div id="control-buttons">
+               <span>
+                    <img src="./keys.png" width="90%">
+               </span>
+               <span>
+                    <button class="game-button" id="start-btn">Press to Start</button>
+                    <button class="game-button" id="resume-btn">Press to Resume</button>
+               </span>
+          </div>
+          <div id="rules-section">
+               <b>Rules :</b>
+               <ul>
+                    <li>'Escape' & 'Space' keys will pause/resume the game</li>
+                    <li>Hitting the balls won't kill the snake</li>
+                    <li>Snake length & speed increase with food</li>
+                    <li>Snake dies if bites itself & Game Over</li>
+               </ul>
+          </div>
+     </div>
+     <script defer src="./script.js" />
+</body>
+</html>
