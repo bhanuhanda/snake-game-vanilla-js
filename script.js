@@ -2,8 +2,13 @@ const GAME_BOARD = document.getElementById('game-board')
 const OPTIONS_SCREEN = document.getElementById('options-screen')
 const START_BTN = document.getElementById('start-btn')
 const RESUME_BTN = document.getElementById('resume-btn')
+const PAUSE_BTN = document.getElementById('pause-btn')
+const SCORE_BTN = document.getElementById('score-btn')
+const SCORE_BOARD = document.getElementById('score-board')
 
 const GRID_SIZE = 32;
+
+let SCORE;
 
 let GAME_OVER;
 let GAME_PAUSED = false;
@@ -14,22 +19,80 @@ let FOOD_BODY;
 let SNAKE_SPEED;
 let MOVE_DIRECTION;
 
+let TOUCH_START_COORDINATES;
+let TOUCH_END_COORDINATES;
+
+let FOOD_EATEN_COUNT;
+
 let PERSISTED_MOVE_DIRECTION;
 
 function setInitialConfig () {
+     SCORE = 0;
      GAME_OVER = false
      GAME_PAUSED = false
 
      SNAKE_BODY = [{x:16, y:16}]
      FOOD_BODY = getRandomCoordinate()
 
-     SNAKE_SPEED = 8
+     SNAKE_SPEED = 14
      MOVE_DIRECTION = { x:1, y:0 }
 }
 
 window.addEventListener('keydown', e => handleInput(e))
+GAME_BOARD.addEventListener('touchstart', e => handleTouchStart(e))
+GAME_BOARD.addEventListener('touchend', e => handleTouchEnd(e))
 START_BTN.addEventListener('click', handleGameStart)
 RESUME_BTN.addEventListener('click', handlePause)
+PAUSE_BTN.addEventListener('click', handlePause)
+
+function getClientCoordinates (coordinates) {
+     const { clientX, clientY } = coordinates[0];
+     return { clientX, clientY };
+}
+
+function getTouchDirection () {
+     const movementInX = TOUCH_START_COORDINATES.clientX - TOUCH_END_COORDINATES.clientX;
+     const movementInY = TOUCH_START_COORDINATES.clientY - TOUCH_END_COORDINATES.clientY;
+
+     if(Math.abs(movementInX) < Math.abs(movementInY)) {
+          if (movementInY > 0) return 'UP'
+          return 'DOWN'
+     }
+     else {
+          if (movementInX < 0) return 'RIGHT'
+          return 'LEFT'
+     }
+}
+function updateMoveDirection (direction) {
+     const currentDirection = MOVE_DIRECTION
+     switch (direction) {
+          case 'UP':
+               if(currentDirection.y !== 0) break
+               MOVE_DIRECTION = { x:0, y:-1 }
+               break;
+          case 'DOWN':
+               if(currentDirection.y !== 0) break
+               MOVE_DIRECTION = { x:0, y:1 }
+               break;
+          case 'LEFT':
+               if(currentDirection.x !== 0) break
+               MOVE_DIRECTION = { x:-1, y:0 }
+               break;
+          case 'RIGHT':
+               if(currentDirection.x !== 0) break
+               MOVE_DIRECTION = { x:1, y:0 }
+               break;
+     }
+}
+
+function handleTouchStart ({ changedTouches }) {
+     TOUCH_START_COORDINATES = getClientCoordinates (changedTouches);
+}
+
+function handleTouchEnd ({ changedTouches }) {
+     TOUCH_END_COORDINATES = getClientCoordinates(changedTouches);
+     updateMoveDirection(getTouchDirection())
+}
 
 function handlePause () {
      if(!GAME_PAUSED) {
@@ -37,11 +100,13 @@ function handlePause () {
           MOVE_DIRECTION = { x:0, y:0 }
           GAME_PAUSED = true;
 
+          PAUSE_BTN.style.display = 'none';
           OPTIONS_SCREEN.style.display = 'flex';
      } else {
           MOVE_DIRECTION = PERSISTED_MOVE_DIRECTION
           GAME_PAUSED = false
 
+          PAUSE_BTN.style.display = 'block';
           OPTIONS_SCREEN.style.display = 'none';
      }
 }
@@ -51,7 +116,14 @@ function handleGameStart () {
      setInitialConfig()
      START_BTN.style.display = 'none'
      RESUME_BTN.style.display = 'block'
+     PAUSE_BTN.style.display = 'block'
+     FOOD_EATEN_COUNT = 0;
+     SCORE_BOARD.style.display = 'block'
      playGame()
+}
+
+function calculateScore () {
+     SCORE = FOOD_EATEN_COUNT * (SNAKE_SPEED-0.5) * 2;
 }
 
 function playGame () {
@@ -61,10 +133,19 @@ function playGame () {
                RESUME_BTN.style.display = 'none'
                START_BTN.style.display = 'block'
                START_BTN.innerText = 'Game Over !! Press to Restart'
+
+               SCORE_BTN.style.display = 'block'
+               SCORE_BTN.innerText = 'Score: ' + SCORE
+               
+               SCORE_BOARD.style.display = 'none'
+               PAUSE_BTN.style.display = 'none'
+
                OPTIONS_SCREEN.style.display = 'flex';
                GAME_BOARD.innerHTML = ''
                return
           }
+          calculateScore()
+          SCORE_BOARD.innerText = 'Score: ' + SCORE
           updateBoard()
           drawBoard()
           playGame()
@@ -113,8 +194,9 @@ function overlap(food) {
 function updateFoodPosition () {
      if(overlap(FOOD_BODY)) {
           expandSnake()
-          SNAKE_SPEED++
+          SNAKE_SPEED = SNAKE_SPEED + 0.5 
           FOOD_BODY = getNextFoodCoordinate()
+          FOOD_EATEN_COUNT+=1
      }
 }
 

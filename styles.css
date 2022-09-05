@@ -79,7 +79,25 @@ body {
 }
 #resume-btn {
     display: none;
-    background-color: #f00a;
+    background-color: #00f5;
+}
+#score-btn {
+    display: none;
+    background-color: #00f5;
+}
+#pause-btn {
+    position: absolute;
+    bottom: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: none;
+}
+#score-board {
+    display: none;
+    position: absolute;
+    top: 0;
+    margin-left: auto;
+    margin-right: auto;
 }
 ul {
     margin: 0;
